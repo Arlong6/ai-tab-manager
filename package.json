@@ -1,0 +1,24 @@
+{
+  "name": "ai-tab-manager",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vite build",
+    "zip": "cd dist && zip -r ../ai-tab-manager.zip ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "preact": "^10.29.1"
+  },
+  "devDependencies": {
+    "@anthropic-ai/sdk": "^0.82.0",
+    "@preact/preset-vite": "^2.10.5",
+    "@types/chrome": "^0.1.39",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.3"
+  }
+}

@@ -1,0 +1,42 @@
+export enum MessageType {
+  // Tab operations
+  GET_TABS = 'GET_TABS',
+  GROUP_TABS_AI = 'GROUP_TABS_AI',
+  GROUP_TABS_DOMAIN = 'GROUP_TABS_DOMAIN',
+  UNGROUP_ALL = 'UNGROUP_ALL',
+  CLOSE_TAB = 'CLOSE_TAB',
+
+  // Session operations
+  GET_SESSIONS = 'GET_SESSIONS',
+  SAVE_SESSION = 'SAVE_SESSION',
+  RESTORE_SESSION = 'RESTORE_SESSION',
+  DELETE_SESSION = 'DELETE_SESSION',
+
+  // AI operations
+  SUMMARIZE_TAB = 'SUMMARIZE_TAB',
+  SEARCH_TABS = 'SEARCH_TABS',
+  EXTRACT_CONTENT = 'EXTRACT_CONTENT',
+
+  // Settings
+  GET_SETTINGS = 'GET_SETTINGS',
+  SET_API_KEY = 'SET_API_KEY',
+  VALIDATE_API_KEY = 'VALIDATE_API_KEY',
+
+  // Side panel
+  OPEN_SIDE_PANEL = 'OPEN_SIDE_PANEL',
+}
+
+export const STORAGE_KEYS = {
+  SESSIONS: 'sessions',
+  SETTINGS: 'settings',
+  SUMMARY_CACHE: 'summaryCache',
+} as const;
+
+export const LIMITS = {
+  FREE_MAX_SESSIONS: 3,
+  CONTENT_MAX_CHARS: 15000,
+  SUMMARY_CACHE_TTL: 3600000, // 1 hour
+  TAB_COLORS: ['grey', 'blue', 'red', 'yellow', 'green', 'pink', 'purple', 'cyan', 'orange'] as const,
+} as const;
+
+export const AI_MODEL = 'claude-sonnet-4-20250514';
