@@ -10,15 +10,15 @@
     "storage",
     "unlimitedStorage",
     "sidePanel",
-    "activeTab"
+    "activeTab",
+    "bookmarks",
+    "contextMenus"
   ],
-  "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background.js",
     "type": "module"
   },
   "action": {
-    "default_popup": "src/popup/index.html",
     "default_icon": {
       "16": "icons/icon-16.png",
       "32": "icons/icon-32.png",

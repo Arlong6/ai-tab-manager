@@ -1,7 +1,7 @@
 import { LIMITS } from '../shared/constants';
 import { getStorage } from '../shared/storage';
 import { STORAGE_KEYS } from '../shared/constants';
-import type { TabInfo, TabGroup } from '../shared/types';
+import type { TabInfo, TabGroup, BookmarkInfo, BookmarkFolder, BookmarkMove } from '../shared/types';
 
 const GEMINI_MODEL = 'gemini-2.5-flash';
 
@@ -93,11 +93,17 @@ export async function groupTabsWithAI(tabs: TabInfo[]): Promise<TabGroup[]> {
   const systemPrompt = `You are a tab organizer. Given a list of browser tabs, group them by topic.
 Return valid JSON: { "groups": [{ "name": "Topic Name", "color": "blue", "tabIds": [1, 2, 3] }] }
 Colors must be one of: ${LIMITS.TAB_COLORS.join(', ')}.
-Every tab must be assigned to exactly one group. Use concise group names (2-4 words).`;
+Every tab must be assigned to exactly one group. Use very short group names (1-2 words, max 12 characters). Examples: "Dev", "Social", "Work", "Shopping", "News", "Video", "Finance".`;
 
   const result = await callGemini(systemPrompt, `Group these tabs:\n${tabList}`);
   const json = extractJson(result);
   const parsed = JSON.parse(json) as { groups: TabGroup[] };
+  // Truncate long group names to keep tab bar clean
+  for (const group of parsed.groups) {
+    if (group.name.length > 15) {
+      group.name = group.name.slice(0, 14).trim();
+    }
+  }
   return parsed.groups;
 }
 
@@ -136,15 +142,51 @@ export async function searchTabsWithAI(
   tabs: { tabId: number; title: string; url: string; content: string }[]
 ): Promise<{ tabId: number; relevance: number; snippet: string }[]> {
   const tabList = tabs
-    .map((t) => `[Tab ${t.tabId}] "${t.title}" (${t.url})\nContent preview: ${t.content.slice(0, 500)}`)
-    .join('\n\n');
+    .map((t) => `[Tab ${t.tabId}] "${t.title}" (${t.url})`)
+    .join('\n');
 
-  const systemPrompt = `You are a search assistant. Given a search query and tab contents, rank the tabs by relevance.
-Return valid JSON: { "results": [{ "tabId": number, "relevance": 0-100, "snippet": "relevant excerpt" }] }
+  const systemPrompt = `You are a search assistant. Given a search query and a list of browser tabs (title and URL), rank the tabs by relevance to the query.
+Return valid JSON: { "results": [{ "tabId": number, "relevance": 0-100, "snippet": "brief reason why this tab is relevant" }] }
 Only include tabs with relevance > 20. Order by relevance descending.`;
 
   const result = await callGemini(systemPrompt, `Query: "${query}"\n\nTabs:\n${tabList}`);
   const json = extractJson(result);
   const parsed = JSON.parse(json) as { results: { tabId: number; relevance: number; snippet: string }[] };
   return parsed.results;
+}
+
+export async function organizeBookmarksWithAI(
+  bookmarks: BookmarkInfo[],
+  existingFolders: BookmarkFolder[]
+): Promise<BookmarkMove[]> {
+  const bookmarkList = bookmarks
+    .map((b) => `- Bookmark "${b.id}": "${b.title}" - ${b.url}`)
+    .join('\n');
+
+  const folderList = existingFolders
+    .map((f) => `- Folder "${f.id}": "${f.title}"`)
+    .join('\n');
+
+  const systemPrompt = `You are a bookmark organizer. Given a list of unfiled bookmarks and existing folders, decide where each bookmark should go.
+You can assign bookmarks to existing folders OR suggest creating new folders.
+Return valid JSON: { "moves": [{ "bookmarkId": "id", "targetFolderId": "folder_id_or_null", "targetFolderName": "Folder Name", "isNewFolder": false }] }
+If isNewFolder is true, set targetFolderId to null and provide a good folder name.
+Use existing folders when they match well. Only create new folders when no existing folder fits.
+Use concise folder names (1-3 words).`;
+
+  const userMessage = `Existing folders:\n${folderList || '(none)'}\n\nUnfiled bookmarks to organize:\n${bookmarkList}`;
+
+  const result = await callGemini(systemPrompt, userMessage);
+  const json = extractJson(result);
+  const parsed = JSON.parse(json) as { moves: { bookmarkId: string; targetFolderId: string | null; targetFolderName: string; isNewFolder: boolean }[] };
+
+  // Enrich with bookmark info
+  return parsed.moves.map((m) => {
+    const bk = bookmarks.find((b) => b.id === m.bookmarkId);
+    return {
+      ...m,
+      bookmarkTitle: bk?.title || '',
+      bookmarkUrl: bk?.url || '',
+    };
+  });
 }

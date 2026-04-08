@@ -54,3 +54,23 @@ export interface SearchResult {
   snippet: string;
   relevance: number;
 }
+
+export interface BookmarkInfo {
+  id: string;
+  title: string;
+  url: string;
+}
+
+export interface BookmarkFolder {
+  id: string;
+  title: string;
+}
+
+export interface BookmarkMove {
+  bookmarkId: string;
+  bookmarkTitle: string;
+  bookmarkUrl: string;
+  targetFolderId: string | null;  // null = create new folder
+  targetFolderName: string;
+  isNewFolder: boolean;
+}

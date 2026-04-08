@@ -2,13 +2,15 @@ import { useState } from 'preact/hooks';
 import { TabList } from './components/TabList';
 import { SessionList } from './components/SessionList';
 import { SearchBar } from './components/SearchBar';
+import { Bookmarks } from './components/Bookmarks';
 import { Settings } from './components/Settings';
 
-type Tab = 'tabs' | 'sessions' | 'search' | 'settings';
+type Tab = 'tabs' | 'sessions' | 'bookmarks' | 'search' | 'settings';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'tabs', label: 'Tabs' },
   { id: 'sessions', label: 'Sessions' },
+  { id: 'bookmarks', label: 'Bookmarks' },
   { id: 'search', label: 'Search' },
   { id: 'settings', label: 'Settings' },
 ];
@@ -41,7 +43,7 @@ export function App() {
               borderBottom: activeTab === tab.id ? '2px solid var(--primary)' : '2px solid transparent',
               color: activeTab === tab.id ? 'var(--primary)' : 'var(--text-secondary)',
               fontWeight: activeTab === tab.id ? 600 : 400,
-              fontSize: 12,
+              fontSize: 11,
             }}
           >
             {tab.label}
@@ -53,6 +55,7 @@ export function App() {
       <div style={{ flex: 1, overflow: 'auto' }}>
         {activeTab === 'tabs' && <TabList />}
         {activeTab === 'sessions' && <SessionList />}
+        {activeTab === 'bookmarks' && <Bookmarks />}
         {activeTab === 'search' && <SearchBar />}
         {activeTab === 'settings' && <Settings />}
       </div>

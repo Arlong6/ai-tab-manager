@@ -40,6 +40,18 @@ export async function ungroupAll(): Promise<void> {
   }
 }
 
+/** Shorten a domain to a readable label (e.g. "boards.greenhouse.io" → "Greenhouse") */
+function shortenDomain(domain: string): string {
+  // Remove common subdomains
+  const cleaned = domain.replace(/^(www|boards|jobs|job-boards|app|api|mail|m)\./i, '');
+  // Extract the main part (second-level domain)
+  const parts = cleaned.split('.');
+  // For domains like "github.com" → "GitHub", "youtube.com" → "YouTube"
+  const main = parts.length >= 2 ? parts[parts.length - 2] : parts[0];
+  // Capitalize first letter
+  return main.charAt(0).toUpperCase() + main.slice(1);
+}
+
 export async function groupByDomain(): Promise<void> {
   const tabs = await getAllTabs();
   const domainMap = new Map<string, number[]>();
@@ -61,7 +73,7 @@ export async function groupByDomain(): Promise<void> {
     if (tabIds.length < 2) continue;
     const groupId = await chrome.tabs.group({ tabIds: tabIds as [number, ...number[]] });
     await chrome.tabGroups.update(groupId as number, {
-      title: domain,
+      title: shortenDomain(domain),
       color: colors[colorIndex % colors.length] as chrome.tabGroups.Color,
     });
     colorIndex++;
