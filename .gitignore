@@ -2,3 +2,14 @@ node_modules/
 dist/
 *.zip
 .env
+
+# Chrome「封裝擴充功能」產生的簽章私鑰與封裝檔
+*.pem
+*.crx
+
+# 其他 .env 變體（保留範例檔）
+.env.*
+!.env.example
+
+# macOS
+.DS_Store
